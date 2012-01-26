@@ -1,0 +1,28 @@
++-----------------------------------------------------------------------------+
+|                            Far Cry 2 XBT format                             |
++-----------------------------------------------------------------------------+
+
+                                     Tags
++------+----------------------------------------------------------------------+
+| Word | Description                                                          |
++------+----------------------------------------------------------------------+
+| XBT  | XBT Header/settings, 6 words followed by null-terminated string      |
+| DDS  | DDS file header, look at DDS specification                           |
++------+----------------------------------------------------------------------+
+
+The tag is stored as "TBX\0" in the header. This value can be represented by the
+integer constant 0x54425800 or generated with the following code:
+
+    int tag = ('X' << 8 | 'B' << 16 | 'T' << 24);
+
+Header detail:
+
+ - Word 1 always 0x0B000000
+ - Word 2 is the length of the header.
+ - Word 3 is either 0x01000000 or 0x02000000. Not sure what determines this
+   value.
+ - Word 4-6 variable (checksum/identifier/settings?)
+   - Between similar textures, only word 4 changes.
+ - String can be empty, represented by a single null character.
+ - Null-terminated string rounds up to the next word. (including empty string)
+ - Null-terminated string is the path to a higher quality mipmap level.

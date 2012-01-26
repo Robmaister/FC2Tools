@@ -1,0 +1,75 @@
++-----------------------------------------------------------------------------+
+|                            Far Cry 2 XBG format                             |
++-----------------------------------------------------------------------------+
+
+                                     Tags
++------+----------------------------------------------------------------------+
+| Word | Description                                                          |
++------+----------------------------------------------------------------------+
+| MESH | Magic word for xbg, 7 words of settings.                             |
+| RMTL | 7 words of settings followed by null-terminated string.              |
+| NODE | 92 bytes of settings followed by null-terminated string.             |
+| SKID | 44 bytes of settings.                                                |
+| SKND | 16 bytes of settings.                                                |
+| CLUS | actual data.                                                         |
+| BBOX | 40 bytes of settings (probably a bounding box?)                      |
+| BSPH | 60 bytes of settings (binary space partition?)                       |
+| PCMP | 24 bytes of settings (multiplayer?)                                  |
+| UCMP | 24 bytes of settings (similar to PCMP)                               |
++------+----------------------------------------------------------------------+
+
+Tags are stored backwards in the file. (e.g. MESH appearsas HSEM)
+The tag "MESH" can be generated using the following code:
+
+    int tag = ('M' | 'E' << 8 | 'S' << 16 | 'H' << 24);
+
+Details for MESH:
+
+ - Word 1 seems to always be 0x2A000600 (42, 6) as shorts, 393258 as int.
+ - Word 2 is always different, checksum?
+ - Words 3-4 always 0x00000000
+ - Word 5 is byte length of file - 12 bytes (MESH tag + first two words?)
+ - Words 6-7 always 0x00000000, 0x0A000000.
+
+Details for RMTL:
+
+ - "Reference to a MaTeriaL"
+ - Word 1 always 0x01000000
+ - Words 2-3 (only first byte used) as some sort of material ID.
+ - Word 4 always 0x00000000
+ - Word 5 is another setting.
+ - Word 6 always 0x00000000
+ - Word 7 another setting.
+ - Null-terminated string is the path to the material file (.xbm)
+ 
+Details for NODE:
+
+ -
+ 
+Details for SKID:
+
+ -
+
+Details for SKND:
+
+ -
+
+Details for CLUS:
+
+ -
+
+Details for BBOX:
+
+ -"Bounding BOX"
+
+Details for BSPH:
+
+ -"BSP -"
+
+Details for PCMP:
+
+ -
+
+Details for UCMP:
+
+ -

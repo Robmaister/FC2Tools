@@ -23,47 +23,70 @@ Robert Rouhani <robert.rouhani@gmail.com>*/
 
 using System;
 using System.IO;
+using System.Text;
 
 namespace FC2Tools.libFC2
 {
 	public class XBT
 	{
-		private byte[] header;
+		const int MagicWord = /*('X' << 8 | 'B' << 16 | 'T' << 24)*/ 0x00584254;
+
+		private int unknown0;
+		private int headerLength;
+		private int unknown2;
+		private int unknown3;
+		private int unknown4;
+		private int unknown5;
+		private string pathToMip0;
+
 		private byte[] ddsFile;
-
-		public byte[] Header { get { return header; } }
-
 		public byte[] Texture { get { return ddsFile; } }
 
-		public XBTMetadata Metadata
-		{
-			get
-			{
-				//DDS header, excluding bytes 0-7 (magic number and header length)
-				BinaryReader reader = new BinaryReader(new MemoryStream(ddsFile, 8, 24));
-				XBTMetadata data;
-				data.Flags = reader.ReadInt32(); //DDS flags
-				data.Height = reader.ReadInt32(); //Tex0 Height
-				data.Width = reader.ReadInt32(); //Tex0 Width
-				data.Tex0Bytes = reader.ReadInt32(); //Tex0 byte count
-				data.ColorDepth = reader.ReadInt32(); //Color Depth
-				data.MipmapsCount = reader.ReadInt32(); //Number of mipmaps
-
-				return data;
-			}
-		}
-
 		public XBT(string path)
-			: this(new FileStream(path, FileMode.Open))
+			: this(new BinaryReader(File.Open(path, FileMode.Open)))
 		{
 
 		}
 
-		public XBT(Stream stream)
-			: this(ReadBufferToEnd(stream))
+		public XBT(BinaryReader reader)
 		{
+			if (reader.ReadInt32() != MagicWord)
+			{
+				throw new ArgumentException("The file is not a properly formatted XBT file");
+			}
+
+			unknown0 = reader.ReadInt32();
+			headerLength = reader.ReadInt32();
+			unknown2 = reader.ReadInt32();
+			unknown3 = reader.ReadInt32();
+			unknown4 = reader.ReadInt32();
+			unknown5 = reader.ReadInt32();
+
+			StringBuilder builder = new StringBuilder("");
+
+			char[] chars = new char[4];
+			int fourChars;
+
+			while (reader.BaseStream.Position < headerLength)
+			{
+				fourChars = reader.ReadInt32();
+
+				chars[0] = (char)(fourChars & 0xFF);
+				chars[1] = (char)(fourChars >> 8 & 0xFF);
+				chars[2] = (char)(fourChars >> 16 & 0xFF);
+				chars[3] = (char)(fourChars >> 24 & 0xFF);
+
+				foreach (char c in chars)
+				{
+					if (c != '\0')
+						builder.Append(c);
+				}
+			}
+
+			ddsFile = ReadBufferToEnd(reader.BaseStream);
 		}
 
+		/*
 		public XBT(byte[] data)
 		{
 			int i = 0;
@@ -82,7 +105,7 @@ namespace FC2Tools.libFC2
 
 			Buffer.BlockCopy(data, 0, header, 0, header.Length);
 			Buffer.BlockCopy(data, i - 1, ddsFile, 0, ddsFile.Length);
-		}
+		}*/
 
 		private static byte[] ReadBufferToEnd(Stream input)
 		{
@@ -97,15 +120,5 @@ namespace FC2Tools.libFC2
 				return ms.ToArray();
 			}
 		}
-	}
-
-	public struct XBTMetadata
-	{
-		public int Flags;
-		public int Height;
-		public int Width;
-		public int Tex0Bytes;
-		public int ColorDepth;
-		public int MipmapsCount;
 	}
 }
