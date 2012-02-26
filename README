@@ -5,7 +5,7 @@ or build upon. I'm not particularly proud of this code (I think I even found
 some hungarian notation in there, yuck), but it's better than just having the
 code gather dust in some corner of my hard drive. If you know how any of the
 other Far Cry 2 file formats work, let me know and I can try to implement a 
-converteror just fork this project and write the converter yourself.
+converteror or just fork this project and write the converter yourself.
 
                                                                 -Robert Rouhani
                                                        robert.rouhani@gmail.com
